@@ -21,7 +21,8 @@ done
 echo
 if [ "$booted" -ne 1 ]; then
   echo "No ADB after 10 minutes. The TV may be up with its ADB port still closed:" >&2
-  echo "check Settings > My Fire TV > Developer Options > ADB Debugging, then run scripts/check.sh." >&2
+  echo "check Settings > My Fire TV > Developer Options > ADB Debugging - if it is already ON, switch it" >&2
+  echo "off and on again (that opens the port at once on some TVs) - then run scripts/check.sh." >&2
   exit 1
 fi
 
@@ -29,12 +30,12 @@ printf 'Waiting for the home screen '
 front=""
 for _ in $(seq 1 12); do
   front="$(adb -s "$TV" shell dumpsys activity activities 2>/dev/null | tr -d '\r' | grep -m1 mResumedActivity | sed -n 's/.* u0 \([^ ]*\) .*/\1/p')"
-  case "$front" in *HomeActivity*|*launcher*|*vizzini*|*creensaver*|*Dream*) break ;; esac
+  case "$front" in *HomeActivity*|*launcher*|*projengmenu*|*vizzini*|*creensaver*|*Dream*) break ;; esac
   printf '.'; sleep 5
 done
 echo
 case "$front" in
-  *HomeActivity*|*launcher*)
+  *HomeActivity*|*launcher*|*projengmenu*)
     echo "Home screen is up. Give it another 30 seconds before testing - right after boot the launcher can drop remote presses." ;;
   *vizzini*|*creensaver*|*Dream*)
     echo "Booted; the screensaver is showing (the TV is idle - that is fine). Press any button on the remote to wake it." ;;

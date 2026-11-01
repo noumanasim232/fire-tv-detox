@@ -28,6 +28,7 @@ A Fire OS TV ships with roughly **275 packages**. Dozens of them are ad services
 - [Step by step](#step-by-step)
 - [The lists](#the-lists)
 - [Thin out the stock home screen](#thin-out-the-stock-home-screen-no-adb-needed)
+- [Optional: an apps-only home screen](#optional-an-apps-only-home-screen)
 - [Optional: block ads and trackers](#optional-block-ads-and-trackers-adguard-private-dns)
 - [Undo](#undo)
 - [After a Fire OS update](#after-a-fire-os-update)
@@ -376,7 +377,64 @@ If you disabled `com.amazon.tv.notificationcenter` (list 04), **Preferences → 
  7. Play games on Fire TV                   14. Recently used apps
 ```
 
-The screen is calmer: nothing autoplays, the ads aren't personalised, and there are fewer third-party entries. But the rows stay. A bare app grid needs a replacement launcher; [Things that look like a good idea](#things-that-look-like-a-good-idea-but-arent) explains what that costs on a 1.8 GB TV. A personal DNS filter (NextDNS, or AdGuard DNS with an account) might empty the *Sponsored* rows by blocking Amazon's ad servers. That hasn't been tested here.
+The screen is calmer: nothing autoplays, the ads aren't personalised, and there are fewer third-party entries. But the rows stay. For a screen with only your apps, see [Optional: an apps-only home screen](#optional-an-apps-only-home-screen). A personal DNS filter (NextDNS, or AdGuard DNS with an account) might empty the *Sponsored* rows by blocking Amazon's ad servers. That hasn't been tested here.
+
+---
+
+## Optional: an apps-only home screen
+
+Amazon's launcher can't be trimmed down to just your apps, so the only way to get that is a second launcher in front of it. This setup was verified on the reference TV:
+
+- **Projectivy Launcher** shows one row with the apps you pick.
+- **Home on Fire** (`io.github.toolicious.homeonfire`) sends the Home button to Projectivy. **Holding Home** still opens Amazon's home screen, which is where *Continue watching*, Settings and Inputs are.
+
+| | |
+|---|---|
+| **You get** | Home shows your apps and nothing else. Apps, HDMI inputs, the remote and Alexa work as before. |
+| **You give up** | Amazon's rows on the main screen, including *Continue watching*. Hold Home to see them. |
+| **Memory** | About 90 MB for Projectivy and 7 MB for Home on Fire when idle. Fire OS keeps Amazon's launcher loaded either way. Free memory on the reference TV went from about 620 MB to about 610 MB. |
+| **Home is slower** | Fire OS still opens Amazon's home screen on every Home press, and Home on Fire then switches to Projectivy. You'll see Amazon's screen for a moment; Projectivy was up 1.4–4.2 s after the press on the reference TV. |
+
+**1. Install.** Download both APKs yourself, Projectivy Launcher from its developer and Home on Fire from its GitHub releases, and put them in the repo folder (`*.apk` is git-ignored). Then:
+
+```sh
+adb install ProjectivyLauncher-<version>.apk
+adb install home-on-fire.apk
+adb shell pm grant io.github.toolicious.homeonfire android.permission.WRITE_SECURE_SETTINGS
+```
+
+**2. Projectivy's first run.** Allow *read TV listings*. Answer **No** to notification access and to usage and crash reports.
+
+**3. Projectivy layout.** Gear (top right) → *Edit categories*:
+- **Favorites** → *Visible* **on** → *Manage apps* → tick the apps you use.
+- **TV Apps**, **Mobile Apps** and **Settings** → *Visible* **off**.
+
+**4. Projectivy settings → General → Override current launcher → off.**
+
+> [!WARNING]
+> Keep Projectivy's own *Override current launcher* **off**. Fire OS opens Settings by calling Amazon's home screen first, and the override catches that call, so Settings flashes and closes. Home on Fire only reacts to the Home button.
+
+**5. Home on Fire** (open it from Projectivy's *All apps*):
+- *Accessibility service (required)* → **on**. The `pm grant` above is what makes this possible.
+- **📂** → **Projectivy Launcher**
+- *Replace ⌂ Home button* → **on**
+- *Escape to Amazon home* → **Long-press on**, **Double-press off**. With double-press on, every Home press waits to see whether a second one follows, and an accidental double tap takes you to Amazon's screen.
+- *Launch on boot* → **on**
+
+**6. Test.**
+- Home → Projectivy.
+- Open an app, press Home → Projectivy.
+- Hold Home → Amazon's home screen.
+- Reboot → Projectivy comes up by itself.
+
+To reach Settings, **hold Home → Settings**. *Android settings* in Projectivy's gear menu bounces back, for the same reason as in the warning above.
+
+**Undo.** Uninstall Home on Fire first; that hands the Home button straight back to Amazon:
+
+```sh
+adb uninstall io.github.toolicious.homeonfire
+adb uninstall com.spocky.projengmenu
+```
 
 ---
 
@@ -442,7 +500,8 @@ These come from popular "speed up your Fire TV" guides. Each was tried on the re
 | **Set animation scales to 0.5 (or 0)** — `settings put global window_animation_scale 0.5` etc. | **Broke the launcher's side panel on Fire OS 8.** Selecting *Settings*, *Appstore* or anything else in the left panel just closed the panel. Reverting to the defaults fixed it instantly. `scripts/fix-animations.sh` undoes it; `check.sh` warns if the values are off. |
 | **Background process limit** (Developer Options) | On a 1.8 GB TV it makes Netflix and friends get killed more often, so you get *more* cold starts, which are the slow part. It also resets on every reboot. |
 | **Task killers / "force stop everything"** | Apps restart in the background anyway, using more CPU doing it. Switching apps with Home keeps them warm; a warm app reopens almost instantly. |
-| **Replace the launcher** (Projectivy Launcher + Home on Fire) | Worked, and is a fine launcher. But Fire OS keeps the stock launcher resident no matter what — so you end up with two launchers and a Home-button interceptor in memory (~310 MB on the reference TV). It felt *slower*. Removed. Only worth it on a TV with more RAM, or if you want its features more than speed. |
+| **Projectivy's own *Override current launcher*** | Breaks Fire TV Settings. Fire OS opens Settings through Amazon's home screen; the override catches that, and Settings flashes and closes. Use Home on Fire for the Home button instead: see [Optional: an apps-only home screen](#optional-an-apps-only-home-screen). |
+| **A replacement launcher, for speed** | It won't be faster. Fire OS keeps Amazon's launcher loaded and still opens it on every Home press before Home on Fire switches over, so Projectivy appeared 1.4–4.2 s after Home. The first attempt on the reference TV felt slower and was removed; the second, set up for a clean screen, was kept. |
 | **Uninstall instead of disable** (`pm uninstall -k --user 0`) | Not reversible without the APK; `install-existing` fails after some updates; confuses OTA updates. Disabling achieves the same thing. |
 | **Disable Alexa, `dialservice`, `tcomm`** to "save memory" | Voice, phone casting and the Fire TV remote app stop working. They're in the guard list for a reason. |
 | **Disable everything in a forum list without reading it** | Those lists are for different devices and Fire OS versions. Run `scripts/plan.sh` — it tells you what's actually on your TV, and the guard list catches the dangerous ones. |
@@ -457,7 +516,7 @@ These come from popular "speed up your Fire TV" guides. Each was tried on the re
 - The IP is wrong or changed (DHCP). Check Settings → My Fire TV → About → Network. Don't guess at a different IP.
 - ADB Debugging is off (Developer Options). A Fire OS update can switch it off.
 - The TV is in sleep mode — press a button on the remote.
-- The TV just rebooted: the ADB port can take **a few minutes** to open even with debugging on. `scripts/wait-for-boot.sh` keeps retrying.
+- The TV just rebooted: the ADB port can take **a few minutes** to open even with debugging on. `scripts/wait-for-boot.sh` keeps retrying. If it's still closed after about 5 minutes, switch ADB Debugging **off and on again**; on the reference TV that opened the port immediately.
 - A different ADB client is holding the connection (e.g. another computer, or a TV-side app). Disconnect it.
 - `adb devices` shows `unauthorized`: look at the TV — there's an "Allow USB debugging?" prompt. Choose *Always allow*.
 - `adb devices` shows several devices: the scripts always use `-s $TV`, so that's fine.
@@ -485,6 +544,12 @@ scripts/fix-animations.sh
 ```
 
 `scripts/check.sh` warns when the values are off. If they *are* at defaults and the panel still misbehaves, see the next item.
+</details>
+
+<details>
+<summary><b>With Projectivy: Amazon's screen flashes when I press Home, or Settings won't open from Projectivy</b></summary>
+
+Both come from how Fire OS works; nothing is broken. Fire OS opens Amazon's home screen on every Home press, and Home on Fire then switches to Projectivy (1.4–4.2 s after the press on the reference TV). Fire OS also opens Settings *through* Amazon's home screen, so Home on Fire switches away from it. Reach Settings with **hold Home → Settings**. If Settings flashes and closes from there too, check that Projectivy's *Override current launcher* is off.
 </details>
 
 <details>
@@ -578,13 +643,13 @@ No. OTA packages are in the never-touch list and `scripts/dns.sh test` confirms 
 Partly. Those are served by Amazon's backend to the launcher. The detox removes the *local* ad and tracking services; Private DNS blocks many of the ad domains; what's left is baked into the launcher. There's no clean way to remove it without replacing the launcher, and see above for why that was slower.
 
 **The YouTube videos show a home screen with only apps. Why can't the stock launcher do that?**
-Because what's in the video isn't the stock launcher: it's Projectivy, Wolf or FLauncher, or a Google TV in *Apps only mode* (a Google TV feature; Fire OS has no equivalent). On Fire OS 8 the rows are built into `com.amazon.tv.launcher` and served by Amazon. The most you can do without replacing the launcher is in [Thin out the stock home screen](#thin-out-the-stock-home-screen-no-adb-needed).
+Because what's in the video isn't the stock launcher: it's Projectivy, Wolf or FLauncher, or a Google TV in *Apps only mode* (a Google TV feature; Fire OS has no equivalent). On Fire OS 8 the rows are built into `com.amazon.tv.launcher` and served by Amazon. The most you can do without replacing the launcher is in [Thin out the stock home screen](#thin-out-the-stock-home-screen-no-adb-needed); to replace it, see [Optional: an apps-only home screen](#optional-an-apps-only-home-screen).
 
-**Why not just use Projectivy / another launcher?**
-See [Things that look like a good idea](#things-that-look-like-a-good-idea-but-arent). On a 1.8 GB TV it cost more than it saved. On a stick or TV with more RAM, it may be worth it — the reference run doc has the install commands.
+**Can I use Projectivy or another launcher?**
+Yes. It's the only way to get an apps-only screen; follow [Optional: an apps-only home screen](#optional-an-apps-only-home-screen). It costs about 100 MB of memory, Home takes a moment longer, and Amazon's rows (including *Continue watching*) move behind a long press of Home.
 
 **Can I run this on several TVs?**
-Yes — `TV=192.168.1.50 scripts/check.sh` overrides `tv.conf`. Keep a separate clone (or separate `state/` folder) per TV so the logs don't mix.
+Yes — `TV=192.168.1.xx scripts/check.sh` overrides `tv.conf`. Keep a separate clone (or separate `state/` folder) per TV so the logs don't mix.
 
 **Do I need to keep the `state/` folder?**
 Yes, that's your undo record and what `check.sh` compares against. It's git-ignored because it's personal to your TV.

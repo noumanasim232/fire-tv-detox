@@ -39,6 +39,7 @@ Cannot reach $TV over ADB.
   - Is ADB Debugging ON?  (Settings > My Fire TV > Developer Options)
   - Is there an "Allow USB debugging?" prompt on the TV screen? Choose "Always allow".
   - Just rebooted? The ADB port can take a few minutes to open. Try again.
+    Still closed after ~5 minutes? Switch ADB Debugging off and on again.
 EOF
     exit 1
   fi

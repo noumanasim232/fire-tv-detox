@@ -193,6 +193,18 @@ The home screen afterwards, top to bottom: featured banner (still images), Next 
 
 While the pages were being mapped with ADB key presses, one press landed on *Interest-based Ads* while it was OFF and switched it ON with no confirmation. It was switched off again through its *Turn Off* dialog and checked (the settings store shows `interestBasedAds:value=0`). That's where the rule "read the value before every press" comes from.
 
+## Apps-only home screen, second attempt (kept, 1 November 2026)
+
+After the thin-out, the owner still wanted only *Your apps* and *Continue watching*. No setting removes the other rows, so the launcher went back on, this time set up for a clean screen:
+
+- **Projectivy 4.73** reinstalled from the same APK (SHA-256 checked). Onboarding: allowed *read TV listings*; declined notification access and usage/crash reports.
+- **Layout:** the *Favorites* category was made visible with eight apps: Disney+, Hulu, Netflix, NordVPN, Prime Video, YouTube, Silk and Tubi. *TV Apps*, *Mobile Apps* and *Settings* were hidden. Amazon's *Your apps and channels* row had 24 tiles, but most were promoted apps and channels that weren't installed.
+- **Home button, try 1: Projectivy's own *Override current launcher*** (its accessibility service enabled with `settings put secure enabled_accessibility_services com.spocky.projengmenu/.services.ProjectivyAccessibilityService`). Home worked, but **Settings broke**. The log shows the chain: Projectivy's *Android settings* → `android.settings.SETTINGS` → `com.amazon.tv.settings.v2/.compliance.CTSDummySettingsHandler` → Amazon's `HomeActivity_vNext` → `MainSettingsActivity`. The override caught the HOME call and Settings closed again.
+- **Home button, try 2: Home on Fire 1.5.2** (Projectivy's override off, its service removed). Target Projectivy, *Replace Home* on, *Escape to Amazon home* long-press on, double-press **off**, *Launch on boot* on. Everything worked: Home → Projectivy from apps and Settings, hold Home → Amazon's home screen, Netflix and Prime Video open normally. The owner tested Home, HDMI, remote and voice: all fine.
+- **Timing:** Home still makes Fire OS start Amazon's home screen (uid 0), and Home on Fire (uid 10240) then starts Projectivy 1.4 s, 2.3 s and 4.2 s after the press in three runs. The 4.2 s run was with Amazon's launcher cold (it took 2.9 s to draw). The gear's *Android settings* still bounces, because Fire OS routes it through Amazon's home screen.
+- **Memory after a reboot:** about 89 MB for Projectivy, about 7.5 MB for Home on Fire (idle; 58–86 MB while its settings screen is open) and about 134 MB for Amazon's launcher. Free memory was 612 MB, against 623 MB before the reinstall.
+- **ADB after the reboot:** the port stayed closed for more than 10 minutes. Switching ADB Debugging off and on opened it immediately.
+
 ## Measurements
 
 | | Value |
@@ -207,7 +219,7 @@ No pre-detox memory baseline was captured (the snapshot script now does this for
 
 ## Reboot behaviour worth knowing
 
-- Boot to home screen: ~40–50 s. ADB port open: anywhere from immediately to several minutes.
+- Boot to home screen: ~40–50 s. ADB port open: anywhere from immediately to several minutes. Once it stayed closed for more than 10 minutes, and switching ADB Debugging off and on opened it at once.
 - The launcher drops remote presses while finishing startup ("Still no focused window. Will drop the event in 4999ms"), for 10–60 s. The first "Settings won't open" report during this run was *this*, before the animation-scale breakage was found — don't confuse the two.
 - `com.amazon.vizzini` (Alexa UI + screensaver) threw a 32 s ANR during one boot under memory pressure; it recovered on its own.
 - NordVPN did not auto-start after a reboot (its own setting).
@@ -218,7 +230,7 @@ No pre-detox memory baseline was captured (the snapshot script now does this for
 2. Fire OS protects some packages and re-enables others at boot. Skip them; use DNS for what they talk to.
 3. Animation-scale tweaks are not harmless here.
 4. Wait for the home screen after a reboot before judging anything.
-5. A custom launcher on a 1.8 GB TV costs more than it saves, because the stock launcher never leaves memory.
+5. A custom launcher won't make a 1.8 GB TV faster: Amazon's launcher stays loaded and still opens on every Home press. Install one for a clean screen, use Home on Fire for the Home button, and never use Projectivy's own override.
 6. The detox makes the OS lighter; it cannot make Netflix's servers faster. Say so up front.
 7. No setting removes the stock launcher's rows. The settings can stop autoplay and personalisation; for "only apps" you need a different launcher.
 8. On Fire TV settings pages, one press on a switch changes it. Read the value first.
