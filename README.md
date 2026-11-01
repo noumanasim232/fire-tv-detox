@@ -27,6 +27,7 @@ A Fire OS TV ships with roughly **275 packages**. Dozens of them are ad services
 - [How it works](#how-it-works)
 - [Step by step](#step-by-step)
 - [The lists](#the-lists)
+- [Thin out the stock home screen](#thin-out-the-stock-home-screen-no-adb-needed)
 - [Optional: block ads and trackers](#optional-block-ads-and-trackers-adguard-private-dns)
 - [Undo](#undo)
 - [After a Fire OS update](#after-a-fire-os-update)
@@ -325,7 +326,7 @@ Everything the TV needs. `scripts/disable.sh` refuses these outright (exact name
 | `com.amazon.ceviche` | metrics batch uploader |
 | `com.amazon.privacypassservice` | Privacy Pass tokens (ad measurement) |
 | `com.amazon.media.recommendations` | recommendation feed — home rows were fine without it; restore if yours go empty |
-| `com.amazon.tv.notificationcenter` | notification pop-ups and panel — **you stop seeing them** |
+| `com.amazon.tv.notificationcenter` | notification pop-ups and panel — **you stop seeing them**, and *Preferences → Notification Settings* stops opening |
 | `com.amazon.systemnotices` | system notices — Fire OS turned it back on at reboot |
 | `com.amazon.tv.developer.dataservice` | developer data service — Fire OS turned it back on at reboot; ADB kept working |
 
@@ -340,6 +341,42 @@ Casting receivers (Miracast, Prime Video fling, AirPlay, AirCast), smart-home an
 - `com.amazon.client.metrics.api` — reported to break other apps when disabled.
 - Alexa core (`aca`, `alexamediaplayer.runtime.ftv`, `alexa.externalmediaplayer`, `androidskillconnectioncapability`, `audiohome`) — voice stops working.
 - `com.amazon.tv.fw.metrics`, `com.amazon.shoptv.firetv.client` — appear in forum lists, don't exist on Fire OS 8.1 TVs.
+
+---
+
+## Thin out the stock home screen (no ADB needed)
+
+There is **no "turn off home-screen recommendations" switch on Fire OS 8.** Every relevant Settings page was checked on the reference TV: Preferences, Privacy Settings, Featured Content, Applications, Display & Sounds and Live TV. The rows are built into `com.amazon.tv.launcher` and filled by Amazon's servers. Even with `com.amazon.media.recommendations` disabled (list 04), every row still appears. The "only apps" home screens in YouTube videos come from a replacement launcher, or from a **Google TV** in *Apps only mode*. Fire OS has no equivalent.
+
+Here's what you *can* switch off with the remote. These settings live in Amazon's own settings store, so `adb shell settings` can't change them:
+
+| Where | Set to | What it does |
+|---|---|---|
+| Preferences → Featured Content → **Allow Video Autoplay** | Off | the top banner shows still images instead of auto-playing trailers and ads |
+| Preferences → Featured Content → **Allow Audio Autoplay** | Off | …and stays silent |
+| Preferences → Privacy Settings → **Interest-based Ads** | Off, confirming **Turn Off** in the dialog | sponsored tiles stop being personalised to you |
+| Preferences → Privacy Settings → **Device Usage Data**, **Collect App and Over-the-Air Usage Data** | Off | less telemetry |
+| Preferences → Privacy Settings → Manage Sharing from Apps → **Share App Viewing and Content Info** | Off: choose *Off* on the *Personalize Fire TV* page | Netflix, Disney+ and other apps stop sending your watch activity to Amazon for recommendations and ads, so their shows drop out of *Next up* and *Continue watching* |
+| Live TV → **Sync Sources** | Off, for apps whose channels you never watch | fewer channels in the guide; it should also thin out *On now* (not tested on the reference TV) |
+
+> [!WARNING]
+> On these pages, **Select changes a switch immediately**. The only confirmation is when you turn *Interest-based Ads* off. Check the current value before you press, or you may switch something back on.
+
+If you disabled `com.amazon.tv.notificationcenter` (list 04), **Preferences → Notification Settings no longer opens**, because that page belongs to the disabled package. You won't miss it: the pop-ups are gone too.
+
+**What's left.** This is the reference TV's home screen after all of the above, top to bottom:
+
+```text
+ 1. Featured banner (still images now)       8. Sponsored: This week on Fire TV
+ 2. Next up for you                          9. 2026 Elections: Get Ready
+ 3. Your apps and channels                  10. On now
+ 4. Sponsored                               11. Sponsored: More ways to enjoy your TV
+ 5. Continue watching                       12. Clips and videos for you
+ 6. 2026 Midterm Elections Latest News      13. Sponsored: Entertainment
+ 7. Play games on Fire TV                   14. Recently used apps
+```
+
+The screen is calmer: nothing autoplays, the ads aren't personalised, and there are fewer third-party entries. But the rows stay. A bare app grid needs a replacement launcher; [Things that look like a good idea](#things-that-look-like-a-good-idea-but-arent) explains what that costs on a 1.8 GB TV. A personal DNS filter (NextDNS, or AdGuard DNS with an account) might empty the *Sponsored* rows by blocking Amazon's ad servers. That hasn't been tested here.
 
 ---
 
@@ -539,6 +576,9 @@ No. OTA packages are in the never-touch list and `scripts/dns.sh test` confirms 
 
 **Does it remove the sponsored row / screensaver ads / "Sponsored" tiles?**
 Partly. Those are served by Amazon's backend to the launcher. The detox removes the *local* ad and tracking services; Private DNS blocks many of the ad domains; what's left is baked into the launcher. There's no clean way to remove it without replacing the launcher, and see above for why that was slower.
+
+**The YouTube videos show a home screen with only apps. Why can't the stock launcher do that?**
+Because what's in the video isn't the stock launcher: it's Projectivy, Wolf or FLauncher, or a Google TV in *Apps only mode* (a Google TV feature; Fire OS has no equivalent). On Fire OS 8 the rows are built into `com.amazon.tv.launcher` and served by Amazon. The most you can do without replacing the launcher is in [Thin out the stock home screen](#thin-out-the-stock-home-screen-no-adb-needed).
 
 **Why not just use Projectivy / another launcher?**
 See [Things that look like a good idea](#things-that-look-like-a-good-idea-but-arent). On a 1.8 GB TV it cost more than it saved. On a stick or TV with more RAM, it may be worth it — the reference run doc has the install commands.

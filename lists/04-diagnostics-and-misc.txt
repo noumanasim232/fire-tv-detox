@@ -6,6 +6,6 @@ com.amazon.connectivitydiag             # connectivity diagnostics
 com.amazon.ceviche                      # metrics batch uploader
 com.amazon.privacypassservice           # Privacy Pass token service (ad measurement)
 com.amazon.media.recommendations        # recommendation feed - rows were fine without it; restore it if yours go empty
-com.amazon.tv.notificationcenter        # notification pop-ups and panel - you stop seeing them
+com.amazon.tv.notificationcenter        # notification pop-ups and panel - you stop seeing them, and Preferences > Notification Settings stops opening
 com.amazon.systemnotices                # system notices - Fire OS turned it back ON at reboot on the reference TV
 com.amazon.tv.developer.dataservice     # developer data service - Fire OS turned it back ON at reboot; ADB kept working

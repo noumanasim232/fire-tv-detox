@@ -169,6 +169,30 @@ Installed from APKs the owner supplied: Projectivy Launcher 4.73 (`com.spocky.pr
 
 ~310 MB of a 1.8 GB TV on launchers, and every Home press takes an extra hop through the interceptor. Both were uninstalled (Home on Fire first, which returns the Home button to the stock launcher). Memory immediately after: 546 → 622 MB free.
 
+## Home screen thin-out (1 November 2026)
+
+The owner wanted the "only apps" home screen seen in YouTube videos. The first step was to look for a setting that does it. Every relevant Settings page was read: Preferences (Parental Controls, Privacy Settings, Data Usage Monitoring, Notification Settings, Featured Content, Time Zone, Language, Metric Units, Standby LED), Applications, Display & Sounds, and Live TV. **None of them has a switch for home-screen rows.**
+
+Changed with the remote and read back afterwards:
+
+| Setting | Before | After |
+|---|---|---|
+| Featured Content → Allow Video Autoplay | ON | **OFF** |
+| Featured Content → Allow Audio Autoplay | ON | **OFF** |
+| Privacy → Manage Sharing from Apps → Share App Viewing and Content Info | ON | **OFF** (this also hides *Manage Participating Apps* and *Sync Across Devices*) |
+| Privacy → Interest-based Ads | OFF | OFF |
+| Privacy → Device Usage Data, Collect App and Over-the-Air Usage Data | OFF | OFF |
+
+Also found:
+
+- Preferences → Notification Settings no longer opens. The log shows `ActivityNotFoundException ... NOTIFICATION_SETTING`, because the page belongs to `com.amazon.tv.notificationcenter`, which batch 5 disabled.
+- `com.amazon.media.recommendations` had been disabled since batch 5, and the rows were all still there, so it doesn't feed them.
+- Live TV showed 845 channels from synced sources. *Sync Sources* was left alone.
+
+The home screen afterwards, top to bottom: featured banner (still images), Next up for you, Your apps and channels, Sponsored, Continue watching, 2026 Midterm Elections Latest News, Play games on Fire TV, Sponsored: This week on Fire TV, 2026 Elections: Get Ready, On now, Sponsored: More ways to enjoy your TV, Clips and videos for you, Sponsored: Entertainment, Recently used apps. That's 13 rows, 4 of them sponsored. It's calmer, but it's not "only apps".
+
+While the pages were being mapped with ADB key presses, one press landed on *Interest-based Ads* while it was OFF and switched it ON with no confirmation. It was switched off again through its *Turn Off* dialog and checked (the settings store shows `interestBasedAds:value=0`). That's where the rule "read the value before every press" comes from.
+
 ## Measurements
 
 | | Value |
@@ -196,3 +220,5 @@ No pre-detox memory baseline was captured (the snapshot script now does this for
 4. Wait for the home screen after a reboot before judging anything.
 5. A custom launcher on a 1.8 GB TV costs more than it saves, because the stock launcher never leaves memory.
 6. The detox makes the OS lighter; it cannot make Netflix's servers faster. Say so up front.
+7. No setting removes the stock launcher's rows. The settings can stop autoplay and personalisation; for "only apps" you need a different launcher.
+8. On Fire TV settings pages, one press on a switch changes it. Read the value first.
