@@ -1,0 +1,15 @@
+# Batch 1 - tracking, logging and advertising.
+# Verified on a TCL Fire TV, Fire OS 8.1.8.5: nothing broke (Home, HDMI, remote, voice all fine).
+# Lines marked "protected" failed there with "Cannot disable a protected package" - the script
+# skips those cleanly, and they may well work on other models (Fire OS 7 sticks, for example).
+
+com.amazon.tv.acr                       # Automatic Content Recognition: fingerprints what is on screen (incl. HDMI) for ads/analytics
+com.amazon.device.crashmanager          # crash-report uploader                       (protected on Fire OS 8)
+com.amazon.device.logmanager            # log uploader                                (protected on Fire OS 8)
+com.amazon.dp.logger                    # device-platform logger
+com.amazon.wirelessmetrics.service      # Wi-Fi usage metrics
+com.amazon.device.telemetry.emitter     # telemetry emitter
+com.amazon.perfcollection               # performance data collection
+com.amazon.neo.minerva.logcat           # Minerva metrics: logcat collector
+com.amazon.hybridadidservice            # advertising-ID service
+com.amazon.ftvads.deeplinking           # ad deep-link handler                        (protected on Fire OS 8)

@@ -1,0 +1,4 @@
+# Copy this file to tv.conf and put your TV's address in it.
+# Find the IP on the TV: Settings > My Fire TV > About > Network.
+# Port 5555 is ADB's default; you can leave it off and the scripts add it.
+TV=192.168.1.xx:5555

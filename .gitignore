@@ -1,0 +1,13 @@
+# Your TV's address and live state - personal, never committed
+tv.conf
+state/
+
+# APK installers - get them from the developers, don't redistribute
+*.apk
+*.apks
+*.xapk
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.tmp

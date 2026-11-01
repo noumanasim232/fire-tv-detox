@@ -1,0 +1,12 @@
+# Batch 3 - Amazon apps most people never open on a TV.
+# Verified on a TCL Fire TV, Fire OS 8.1.8.5: nothing broke.
+# Comment out (put a # in front of) anything you actually use.
+
+com.amazon.shoptv.client                # Amazon Shopping on the TV
+com.amazon.gamehub                      # games hub / Luna entry point
+com.amazon.minitv.android.app           # Amazon miniTV
+com.amazon.bueller.photos               # Amazon Photos
+com.amazon.bueller.music                # Amazon Music
+com.amazon.ods.kindleconnect            # Kindle connector
+com.amazon.tv.website_launcher          # web-app shortcut launcher
+com.amazon.tv.localgallery              # built-in USB photo/video viewer - keep it if you plug in USB drives

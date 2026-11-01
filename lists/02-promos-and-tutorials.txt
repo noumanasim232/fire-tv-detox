@@ -1,0 +1,13 @@
+# Batch 2 - promotions, nags and tutorials.
+# Verified on a TCL Fire TV, Fire OS 8.1.8.5: nothing broke.
+
+com.amazon.kso.blackbird                # "special offers" ads
+com.amazon.tmm.tutorial                 # remote tutorial
+com.amazon.storm.lightning.tutorial     # Fire TV phone-app tutorial
+com.amazon.sneakpeek                    # promo previews
+com.amazon.tv.easyupgrade               # "upgrade your Fire TV" prompts
+com.amazon.tv.earlyaccess               # early-access program prompts
+com.amazon.tv.releasenotes              # "what's new" screens after updates
+com.amazon.tv.democontent.provider      # retail demo-mode content
+com.amazon.tv.csapp                     # Help / customer-service app                 (protected on Fire OS 8)
+com.amazon.tv.support                   # support screens

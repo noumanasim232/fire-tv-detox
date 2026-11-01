@@ -1,0 +1,40 @@
+# Batch 5 - your choice. EVERY line here is commented out on purpose.
+# Remove the leading "#" from the things you never use, then run:
+#   scripts/disable-list.sh lists/05-your-choice.txt
+# It works through them 10 at a time; reboot and test between runs.
+# Disabled apps stay installed and come back instantly with scripts/restore.sh.
+
+## Casting from a phone - keep whichever you use
+#com.amazon.cast.sink                   # Miracast / screen mirroring receiver
+#com.amazon.awvflingreceiver            # Prime Video "fling" from the phone app
+#com.apple.airplay.amazon.airplay       # AirPlay receiver (models that ship with it)
+#com.azone.aircast                      # AirCast third-party casting app
+
+## Smart home and Alexa extras - voice itself keeps working without these
+#com.amazon.tv.matter                   # Matter smart-home hub
+#com.amazon.tv.mattercohost
+#com.amazon.tv.alexaalerts              # Alexa timers and alarms on the TV
+#com.amazon.tv.alexanotifications
+#com.amazon.rtcsessioncontroller        # Alexa calling / camera feeds on the TV
+#com.amazon.smarthomemapviewapp         # smart-home map view
+
+## Browser
+#com.amazon.cloud9                      # Silk browser
+
+## Streaming and other third-party apps found on the reference TV - uncomment the ones you never use
+#com.netflix.ninja                      # Netflix
+#com.disney.disneyplus                  # Disney+
+#com.hulu.plus                          # Hulu
+#com.amazon.firetv.youtube              # YouTube
+#com.tubitv.ott                         # Tubi
+#tv.pluto.android                       # Pluto TV
+#com.peacock.peacockfiretv              # Peacock
+#com.discovery.discoveryplus.firetv     # discovery+
+#com.fox.fts.android                    # Fox
+#com.fox.foxone                         # Fox One
+#com.viki.kindle                        # Viki
+#com.xite.amazon.coda                   # XITE music videos
+#com.spotify.tv.android                 # Spotify
+#com.amazon.spotify.mediabrowserservice # Alexa <-> Spotify link (disable together with Spotify)
+#com.instagram.airwave                  # Instagram
+#com.nordvpn.android                    # NordVPN

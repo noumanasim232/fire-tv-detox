@@ -1,0 +1,86 @@
+# Packages the TV needs. scripts/disable.sh REFUSES anything that equals one of these
+# names or starts with "<name>." (prefix match), and never sends it to the TV.
+# Edit this file only if you are sure - and expect to use scripts/restore.sh.
+
+## Android itself
+android
+android.ext                         # android.ext.services / android.ext.shared
+android.amazon.perm
+amazon.fireos
+com.fireos                          # Fire OS proxies (arcus, usagestats)
+com.android                         # every AOSP component: systemui, bluetooth, providers, permissions, networkstack...
+com.amazon.webview.chromium         # system WebView - apps break without it
+
+## Home screen, boot, first-run setup
+com.amazon.tv.launcher
+com.amazon.firehomestarter
+com.amazon.tv.oobe
+com.amazon.tv.ooberesource
+
+## Settings, keyboard, Appstore, Prime Video, parental controls
+com.amazon.tv.settings              # covers .v2 .core .mediatek and their overlays
+com.amazon.tv.settingsprovider
+com.amazon.android.settings
+com.amazon.tv.quicksettings
+com.amazon.tv.ime                   # on-screen keyboard
+com.amazon.venezia                  # Appstore
+com.amazon.firebat                  # Prime Video
+com.amazon.tv.parentalcontrols
+
+## Remote, input devices, Bluetooth
+com.amazon.fireinputdevices
+com.amazon.autopairservice
+com.amazon.device.bluetoothpa
+com.amazon.device.bluetoothkeymaplib
+com.amazon.device.blepa
+com.amazon.tv.keypolicymanager
+com.amazon.accessoryconfigservice
+com.amazon.uxcontrollerservice
+
+## HDMI, inputs, tuner, picture - the TV hardware
+com.amazon.tv.livetv
+com.amazon.mediatek.livetv
+com.amazon.franktvinput
+com.amazon.tv.inputpreference       # input list and HDMI switching
+com.amazon.tv.routing
+com.amazon.tv.devicecontrol         # HDMI-CEC
+com.amazon.tv.devicecontrolsettings
+com.amazon.tv.channelscan
+com.amazon.providers.tv
+com.amazon.tv.resolutioncycler
+com.amazon.ftve                     # audio providers and effects
+com.mediatek                        # SoC vendor services: tuner, picture quality, inputs
+com.amazon.tifobserver
+
+## Identity, registration, device messaging, updates, time
+com.amazon.identity
+com.amazon.device.messaging
+com.amazon.tcomm                    # device messaging transport (remote app, Alexa)
+com.amazon.dcp                      # device registration
+com.amazon.imp
+com.amazon.ssm
+com.amazon.ssmsys
+com.amazon.device.software.ota      # system updates
+com.amazon.tv.forcedotaupdater
+com.amazon.device.sync
+com.amazon.client.metrics.api       # reported to break other apps when disabled
+com.amazon.appaccesskeyprovider
+com.amazon.securitysyncclient
+com.amazon.kindleautomatictimezone
+
+## Alexa and voice - the voice test depends on these
+com.amazon.aca
+com.amazon.alexamediaplayer.runtime.ftv
+com.amazon.alexa                    # alexa.* services
+com.amazon.alexadirectivebrokerservice
+com.amazon.firetv.androidskillconnectioncapability
+com.amazon.audiohome
+com.amazon.vizzini                  # Alexa on-screen UI and screensaver
+com.amazon.ftv.screensaver
+com.ivona                           # text-to-speech voices
+com.svox.pico
+
+## Casting plumbing that YouTube, Netflix and AirPlay rely on
+com.amazon.dialservice
+com.amazon.whisperlink
+com.amazon.whisperplay
