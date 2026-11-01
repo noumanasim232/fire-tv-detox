@@ -12,6 +12,7 @@ Open an issue (or a PR adding `docs/reference-run-<model>.md`) with:
 4. Packages Fire OS re-enabled at boot (`scripts/check.sh` → "In the log but ENABLED").
 5. Anything that broke, and which `scripts/restore.sh` fixed it.
 6. Optional: `state/snapshots/<date>/meminfo.txt` before and after.
+7. The output of `scripts/privacy-check.sh`. It never prints your advertising ID, and the IPs it shows are public server addresses.
 
 Don't paste `tv.conf` or your snapshots' full package list unless you're happy with the apps you have installed being public.
 

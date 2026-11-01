@@ -205,6 +205,19 @@ After the thin-out, the owner still wanted only *Your apps* and *Continue watchi
 - **Memory after a reboot:** about 89 MB for Projectivy, about 7.5 MB for Home on Fire (idle; 58–86 MB while its settings screen is open) and about 134 MB for Amazon's launcher. Free memory was 612 MB, against 623 MB before the reinstall.
 - **ADB after the reboot:** the port stayed closed for more than 10 minutes. Switching ADB Debugging off and on opened it immediately.
 
+## Privacy audit: ACR and ad tracking (1 November 2026)
+
+The owner asked whether the TV records what's on screen (ACR), as reported for LG and Samsung TVs. The findings:
+
+- **`com.amazon.tv.acr` had been disabled since batch 1.** It's a 6.7 KB stub at `/system_ext/priv-app/com.amazon.tv.acr-stub/`, with a 516-byte `classes.dex` and no update installed (`lastUpdateTime` is the factory default). It contains no server names and no capture code, so ACR never ran on this TV. Its manifest still asks for `RECORD_AUDIO`, `HDMI_CEC`, key events and account access. Other stubs (Prime Video, Silk, AirPlay) had been replaced by full apps through updates, which is why it's worth keeping this one disabled.
+- **There's no ACR switch** on this TV's Privacy Settings page, and no third-party ACR app is installed (Samba TV, Alphonso, Inscape, Gracenote or anything from TCL).
+- **Ad tracking:** `limit_ad_tracking=1`, `amz_limit_ad_tracking=1` and Interest-based Ads `0`. The ad-ID service `com.amazon.hybridadidservice` is disabled. An undocumented key, `non_amz_limit_ad_tracking=0`, was left alone.
+- **On-screen switches** (checked by reading the screen): Device Usage Data off, Collect App and Over-the-Air Usage Data off, Share App Viewing and Content Info off.
+- **DNS:** AdGuard blocks `device-metrics-us.amazon.com` and `doubleclick.net`. `gateway-ink.amazon.com` (Fire TV's ACR server, according to the Northeastern study) still resolves, which doesn't matter while the ACR app is disabled.
+- **Apps allowed to record audio or read the screen:** `vizzini` (Alexa), `tv.ime`, `tv.settings.v2`, `rtcsessioncontroller` (Alexa calling), `audiolatencymeasurer`, plus `kindleconnect` and `tv.acr` (both disabled). The one that stood out is **`com.amazon.hedwig`, Fire TV Channels**, updated 14 October 2026, which holds `READ_FRAME_BUFFER`, `CAPTURE_AUDIO_OUTPUT` and `RECORD_AUDIO`. A scan of its code found its own servers (`podiumedgeservice.amazon.com`, `podium-engagement-na.amazon.com`, metrics on `minerva.devices.a2z.com`) but no ACR server and no screen-capture calls. It was added to list 05 so owners can choose.
+
+`scripts/privacy-check.sh` was written from this audit.
+
 ## Measurements
 
 | | Value |

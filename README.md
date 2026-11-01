@@ -6,6 +6,7 @@
   <img alt="Fire OS 7 and 8" src="https://img.shields.io/badge/Fire%20OS-7%20%7C%208-orange">
   <img alt="Method: pm disable-user" src="https://img.shields.io/badge/method-pm%20disable--user-blue">
   <img alt="Nothing uninstalled" src="https://img.shields.io/badge/uninstalls-none-brightgreen">
+  <img alt="ACR off" src="https://img.shields.io/badge/ACR-off-brightgreen">
   <img alt="Works with Claude Code" src="https://img.shields.io/badge/works%20with-Claude%20Code-8A2BE2">
   <img alt="License MIT" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
@@ -20,6 +21,7 @@ A Fire OS TV ships with roughly **275 packages**. Dozens of them are ad services
 ## Contents
 
 - [What you get](#what-you-get)
+- [Privacy: ACR and ad tracking](#privacy-acr-and-ad-tracking)
 - [Does this apply to my TV?](#does-this-apply-to-my-tv)
 - [What you need](#what-you-need)
 - [Quick start](#quick-start)
@@ -49,9 +51,65 @@ A Fire OS TV ships with roughly **275 packages**. Dozens of them are ad services
 | **Reversible** | Every disabled package is logged in `state/disabled.txt`. `scripts/restore.sh --all` puts everything back. A factory reset also restores everything, because nothing was removed. |
 | **Methodical** | At most 10 packages per batch, then reboot, then you test **Home → HDMI → remote → voice** before the next batch. When something breaks you know which ten to suspect. |
 | **Honest** | The lists say what each package does and what you lose. The write-up says what *didn't* help (custom launchers, animation tweaks, task killers) and why. |
+| **Private** | Switches off Fire TV's ACR, the "Shazam for your screen" that fingerprints antenna TV and HDMI input, along with ad-ID personalisation and telemetry. `scripts/privacy-check.sh` shows that it worked. See [Privacy: ACR and ad tracking](#privacy-acr-and-ad-tracking). |
 | **Automatable** | [`CLAUDE.md`](CLAUDE.md) lets [Claude Code](https://claude.com/claude-code) run the whole procedure for you under the same rules. |
 
 **What changes after the detox:** the home screen and Settings feel snappier, less memory is swapped out, and ad/tracker domains stop resolving. **What doesn't change:** how long Netflix, Prime Video or Disney+ take from their logo to your profile — that's the app talking to its own servers, and no TV-side tweak fixes it.
+
+---
+
+## Privacy: ACR and ad tracking
+
+> [!IMPORTANT]
+> Most smart TVs ship with **ACR, automatic content recognition**. It works like Shazam for your screen. The TV keeps sampling the picture or the sound, turns the samples into fingerprints, and sends those to the maker's servers to identify what you're watching. That includes whatever comes in over **HDMI** from a games console, a laptop or another streaming box. ACR is on by default and feeds ad targeting.
+
+**What the research found**
+
+| Source | Finding |
+|---|---|
+| UC Davis, UCL and UC3M: [*Watching TV with the Second-Party*](https://arxiv.org/abs/2409.06203) (IMC 2024) | LG TVs reported to their ACR servers every 15 s and Samsung TVs every minute. This happened for antenna TV and for HDMI, even with the TV used as a plain monitor, but not inside Netflix or YouTube. ACR was on by default, and opting out stopped the traffic. |
+| [Texas Attorney General](https://www.techradar.com/televisions/your-tv-is-a-mass-surveillance-system-says-texas-and-the-state-is-suing-lg-samsung-hisense-tcl-and-more-to-stop-it) (December 2025) | Sued Sony, Samsung, LG, Hisense and TCL, alleging ACR screenshots about every half second without proper consent, and won temporary restraining orders against Hisense and Samsung. These are allegations, not court findings. |
+| Northeastern University: [*Watching the Watchers*](https://watchingthewatchers.github.io/watchingthewatchers/) (PoPETs 2027) | Tested 12 TVs from 10 makers, covering 8 TV operating systems. **Fire TV's ACR server is `gateway-ink.amazon.com`.** With ACR on, Fire TV fingerprinted antenna TV and HDMI input, but not Netflix, YouTube, Tubi or screen mirroring. **Fire TV's opt-out was fully effective**; Samsung's and Vizio's were not. Amazon's privacy policy doesn't mention HDMI. |
+| [Bloomberg Law](https://news.bloomberglaw.com/privacy-and-data-security/amazon-hit-with-video-privacy-suit-over-fire-tv-data-sharing) (May 2026) | A lawsuit alleges that Amazon uses ACR to capture audio and video from Fire TV screens. These are allegations only. |
+
+ACR needs the internet, because the fingerprints have to reach the maker's servers to be matched. These studies measured that network traffic. None of them found a TV storing recordings while offline and uploading them later.
+
+**What this repo does about it on a Fire TV**
+
+| Layer | What to do | Reference TV |
+|---|---|---|
+| ACR app | Disable `com.amazon.tv.acr`, which is in [list 01](lists/01-tracking-and-ads.txt). | Disabled. It turned out to be a 6.7 KB placeholder ("stub") with no capture code. An update can swap a stub for the full app, but a disabled app can't run either way. |
+| ACR switch | Settings → Preferences → Privacy Settings → **Automatic Content Recognition** → Off | Only some Fire TV models show this switch; this TCL doesn't. |
+| Antenna and app data | Privacy Settings → **Collect App and Over-the-Air Usage Data** and **Device Usage Data** → Off | Off |
+| Viewing history from apps | Privacy Settings → Manage Sharing from Apps → **Share App Viewing and Content Info** → Off | Off |
+| Advertising ID | Privacy Settings → **Interest-based Ads** → Off, which sets `limit_ad_tracking=1`. Also disable the ad-ID service `com.amazon.hybridadidservice` (list 01). | Both done |
+| Telemetry | Disable the metrics and log uploaders in list 01. | 7 disabled; Fire OS protects the other 3 |
+| DNS | Turn on AdGuard Private DNS ([below](#optional-block-ads-and-trackers-adguard-private-dns)). | Blocks Amazon device metrics and ad networks, but not `gateway-ink.amazon.com`. If you run a Pi-hole or NextDNS, add that server to its blocklist. |
+
+**Check it**, and check again after every Fire OS update, because updates can switch these settings back on:
+
+```sh
+scripts/privacy-check.sh
+```
+```text
+ACR - automatic content recognition (fingerprints antenna TV and HDMI input)
+  OK     com.amazon.tv.acr is disabled (placeholder stub with no capture code; an update can replace it)
+  OK     no third-party ACR apps (Samba TV, Alphonso, Inscape, Gracenote)
+
+Advertising ID
+  OK     limit_ad_tracking=1 - apps are told not to use the ad ID for interest-based ads
+  OK     Interest-based Ads is off
+  OK     advertising-ID service (com.amazon.hybridadidservice) is disabled
+...
+Summary: 7 OK, 0 to check.
+```
+
+The script checks everything ADB can read and prints a checklist for the switches that only exist on screen. It also lists every app allowed to record audio or read the screen. On the reference TV that list included **Fire TV Channels** (`com.amazon.hedwig`), Amazon's free live-channels app, which can read the screen and capture audio. A scan of its code found no ACR server and no screen-capture calls. If you don't watch Fire TV's free channels, you'll find it in [list 05](lists/05-your-choice.txt).
+
+**Other TVs in the house** (menu names vary by model and year):
+- **LG webOS:** Settings → General → System → Additional Settings → **Live Plus** → Off.
+- **Samsung Tizen:** Settings → Support → Terms & Privacy → Privacy Choices → **Viewing Information Services** → Off. In the 2026 study, Samsung kept sending ACR-like traffic after opt-out in many tests.
+- **Any brand:** see the [Consumer Reports guide](https://www.consumerreports.org/privacy/how-to-turn-off-smart-tv-snooping-features) and the Northeastern [blocklist](https://github.com/IlgarNEU/Watching-the-Watchers/blob/main/Blocklist/Blocklist.txt). The researchers' strongest advice is to keep the TV offline and use an external streaming box that doesn't do ACR.
 
 ---
 
@@ -481,10 +539,11 @@ The test resolves `www.google.com`, `www.netflix.com`, Amazon's update servers (
 
 ## After a Fire OS update
 
-Updates can turn packages back on. Run:
+Updates can turn packages and privacy settings back on. Run:
 
 ```sh
 scripts/check.sh
+scripts/privacy-check.sh
 ```
 
 Anything listed under *"In the log but ENABLED on the TV"* was re-enabled. Re-run `scripts/disable.sh <package>` on it, or, if Fire OS keeps undoing it at every boot, move it to `state/reenabled-by-system.txt` and the scripts will stop trying. A Fire OS update can also switch ADB Debugging off — check Developer Options if `check.sh` can't connect.
@@ -672,6 +731,7 @@ fire-tv-detox/
 │   ├── check.sh              health check, drift detection, warnings          (read-only)
 │   ├── snapshot.sh           save package list, memory, settings to state/    (read-only)
 │   ├── plan.sh               what each list would do on this TV               (read-only)
+│   ├── privacy-check.sh      ACR, ad ID, telemetry, mic/screen access, DNS    (read-only)
 │   ├── disable.sh            disable ONE package, log the result
 │   ├── disable-list.sh       disable a list, max 10 per run, asks for "yes"
 │   ├── restore.sh            re-enable one package or --all

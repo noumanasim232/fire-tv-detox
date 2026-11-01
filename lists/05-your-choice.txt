@@ -18,6 +18,9 @@
 #com.amazon.rtcsessioncontroller        # Alexa calling / camera feeds on the TV
 #com.amazon.smarthomemapviewapp         # smart-home map view
 
+## Fire TV's own free channels
+#com.amazon.hedwig                      # Fire TV Channels: free live channels, plus the News and Sports Highlights tiles. Can read the screen and capture audio; no ACR found in its code
+
 ## Browser
 #com.amazon.cloud9                      # Silk browser
 

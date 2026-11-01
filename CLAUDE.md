@@ -35,7 +35,7 @@ Write the answers to `state/notes.md` so the next session doesn't ask again.
 4. For each approved list, in order 01 → 04: run `scripts/disable.sh <pkg>` per package (≤10), then `scripts/wait-for-boot.sh --reboot`, then ask for the four tests. Wait.
 5. For the user's own choices, write the approved packages to `state/your-choice.txt` (don't edit the shared `lists/05-your-choice.txt`) and process that file the same way, 10 at a time.
 6. Optional: `scripts/dns.sh set`, then read the test output back to the user. Ask them to open the Appstore, Prime Video and one streaming app.
-7. Finish with `scripts/check.sh`. Summarise: disabled / protected / re-enabled-by-Fire-OS counts, what was kept and why, and the undo commands.
+7. Finish with `scripts/check.sh` and `scripts/privacy-check.sh`. Summarise: disabled / protected / re-enabled-by-Fire-OS counts, what was kept and why, and the undo commands.
 
 ## Reading script output
 
@@ -66,6 +66,7 @@ Write the answers to `state/notes.md` so the next session doesn't ask again.
 - **`disable-list.sh` and `plan.sh` skip** packages already in `state/protected-skipped.txt` and `state/reenabled-by-system.txt`. That's intended.
 - **There is no setting that removes home-screen rows on Fire OS 8.** Don't promise one, and don't suggest that disabling `media.recommendations` will do it: it's disabled on the reference TV and every row is still there. What does exist: autoplay, Interest-based Ads, usage-data and app-sharing toggles (README → Thin out the stock home screen). They're stored in Amazon's settings, not Android's, so `adb shell settings` can't change them. A bare app grid needs a replacement launcher: say what it costs (rule 9) and let the user decide.
 - **If you drive Settings with ADB key presses:** open `am start -n com.amazon.tv.launcher/.ui.MainSettingsActivity`, press DOWN once, RIGHT to the tile, then CENTER. Re-open from there for every page; inside a page, press **DOWN only**, because UP from the top leaves the page. Run `uiautomator dump` and read the focused item **and its current value** before every CENTER. **CENTER changes a switch immediately**: an OFF switch turns ON with one press and no confirmation. Only turning *Interest-based Ads* off shows a *Turn Off / Cancel* dialog. *Share App Viewing and Content Info* opens a *Personalize Fire TV* page with On and Off side by side: press RIGHT to *Off*, check the highlight, then CENTER. Read every value back afterwards. A press that missed its target is the most likely way to switch something back on.
+- **Privacy questions (ACR, the ad ID, "is my TV spying on me"):** run `scripts/privacy-check.sh` and report what it shows, using README → Privacy for context. Don't claim more than the evidence shows; for example, the studies found no TV recording while offline. **Never print the advertising ID value** (`advertising_id`): it's a personal identifier.
 - **Preferences → Notification Settings fails to open (`ActivityNotFoundException`) while `com.amazon.tv.notificationcenter` is disabled.** That's expected, not a fault.
 
 ## If the user pastes a package list from the internet
